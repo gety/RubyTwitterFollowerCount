@@ -1,25 +1,71 @@
+# -*- coding: cp932 -*-
 # Count the number of followers and people who each user follows
+# 	-f	oauth-info-file
+# 	-u	twitter-user-name
 
 require 'rubygems'
 require 'twitter'
 require 'pp'
+require 'optparse'
 
+# Here, you can describe access info directly
 YOUR_CONSUMER_KEY       = 'ÇŸÇ∞ÇŸÇ∞'
 YOUR_CONSUMER_SECRET    = 'Ç”Å[Ç”Å['
 YOUR_OAUTH_TOKEN        = 'Ç€Ç…Ç“Ç…'
 YOUR_OAUTH_TOKEN_SECRET = 'Ç‡Ç∞Ç‡Ç∞'
+YOUR_USER_NAME			= 'ÇƒÇÎÇƒÇÎ'
+
+# Check command line options
+OPTS = {}
+opt = OptionParser.new
+begin 
+  opt.on('-f VAL') {|v| OPTS[:f] = v}
+  opt.on('-u VAL') {|v| OPTS[:u] = v}
+  opt.parse!(ARGV)
+rescue
+  puts "#{__FILE__}: unrecognized option \`#{ARGV[0]} \'"
+  exit
+end
+# Check OAuth file name option
+# -- File Format --------------
+# Consumer Key
+# Consumer Secret
+# Access Token
+# Access Token Secret
+# -----------------------------
+if OPTS[:f]
+  # Read OAuth information file name
+  f = open(OPTS[:f], "r")
+  ck = f.gets.chomp
+  cs = f.gets.chomp
+  ot = f.gets.chomp
+  ots = f.gets.chomp
+else
+  # If no arguments
+  ck = YOUR_CONSUMER_KEY
+  cs = YOUR_CONSUMER_SECRET
+  ot = YOUR_OAUTH_TOKEN
+  ots = YOUR_OAUTH_TOKEN_SECRET
+end
+# Check user name option
+if OPTS[:u]
+  # Set twitter user name
+  uname = OPTS[:u]
+else
+  uname = YOUR_USER_NAME
+end
+
 
 Twitter.configure do |config|
-  config.consumer_key = YOUR_CONSUMER_KEY
-  config.consumer_secret = YOUR_CONSUMER_SECRET
-  config.oauth_token = YOUR_OAUTH_TOKEN
-  config.oauth_token_secret = YOUR_OAUTH_TOKEN_SECRET
+  config.consumer_key = ck
+  config.consumer_secret = cs
+  config.oauth_token = ot
+  config.oauth_token_secret = ots
 end
 
 # Initialize your Twitter client
-
-followers = Twitter.follower_ids("hanamaru_gety")
-friends = Twitter.friend_ids("hanamaru_gety")
+followers = Twitter.follower_ids(uname)
+friends = Twitter.friend_ids(uname)
 
 follower_idlist = followers["ids"]
 friend_idlist = friends["ids"]
